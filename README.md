@@ -83,15 +83,6 @@ Quantitative comparison across datasets — higher ↑ is better, lower ↓ is b
 | **DyNeRF** | Vanilla Upper Bound | 28.16 | 0.909 | 0.186 | 28.16 | 0.909 | 0.186 |
 | | **IBRSteG (ours)** | **23.73** | **0.871** | **0.314** | **24.29** | **0.880** | **0.309** |
 
-**Generalizable vs. scene-specific (THuman MV, RTX 3090):** IBRSteG matches or beats optimization-based baselines on recovery fidelity while being **orders of magnitude faster**.
-
-| Method | Cover/Stego PSNR↑ | Secret/Recovered PSNR↑ | Time |
-|---|--:|--:|--:|
-| GS-Hider | 34.04 | 24.05 | 2.5 h |
-| KeySS | 16.81 | 17.17 | 7.6 h |
-| **IBRSteG (ours)** | **32.98** | **32.40** | **≈2 s** |
-
-<sub>The 2-second figure covers the **complete** pipeline, including GAM reconstruction from dual-view images. IBRSteG also supports high-capacity embedding (up to 5 secret scenes in one cover) and shows strong resistance to StegExpose, Zhu-Net steganalysis, and random pruning. See the paper for full tables.</sub>
 
 ## 🗂 Repository Layout
 
@@ -200,7 +191,6 @@ data/thu_processed/
     └── ...
 ```
 
-Default source views are `0` and `1`; novel target views are `2` and `3` for evaluation and `2,3,4,5` for training supervision.
 
 <details>
 <summary><b>Preprocessing raw THU/THumanMV captures</b></summary>
@@ -386,13 +376,6 @@ The training loop optimizes:
 - secret/recovered rendering fidelity
 - optional left/right Chamfer consistency
 - 2D GAM attribute loss using the weights in `config/stage.yaml`
-
-## 📝 Notes for Open-Source Users
-
-- `stegamodels/Conet.py` keeps `Conet = GaussianAttributesSteganographer` as a compatibility alias. **New code should import `GaussianAttributesSteganographer` from `ibrsteg`.**
-- `config/stage.yaml` uses relative paths by default; prefer command-line overrides for dataset and checkpoint paths.
-- `data/`, `experiments/`, `results/`, and logs are ignored by `.gitignore`.
-- `benchmark4` directories in the parent workspace are internal comparison baselines and are not used by this release.
 
 ## 🙏 Acknowledgements
 
