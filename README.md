@@ -34,7 +34,7 @@ Official PyTorch implementation of **IBRSteG: Learning a Generalizable Steganogr
 IBRSteG hides a secret 3D Gaussian scene inside a cover 3D Gaussian scene in a **feed-forward** way — no per-scene optimization. Unlike prior 3DGS steganography whose parameters are rigidly tied to a fixed scene pair, IBRSteG treats embedding as a *scene-agnostic* function that generalizes to unseen scenes. It reconstructs cover/secret scenes with a frozen **GPS-Gaussian+** backbone, converts them into structured **Gaussian Attribute Maps (GAM)** — depth, color, rotation, opacity — and trains a **Gaussian Attributes Steganographer (GAS)** to embed and extract secrets directly in this 2D attribute domain.
 
 > [!NOTE]
-> This directory is the **cleaned open-source release**. It is self-contained and independent from the experimental folders in the parent research workspace. `benchmark4` directories elsewhere are internal comparison baselines and are not used here.
+> This directory is the **cleaned open-source release**. It is self-contained and independent from the experimental folders in the parent research workspace. 
 
 ## ✨ Highlights
 
