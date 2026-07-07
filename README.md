@@ -4,6 +4,12 @@
 
 ### Learning a Generalizable Steganography Framework for 3D Gaussian Splatting
 
+<p align="center">
+
+  <img src="IBRSteG/intro_fig.pdf at main · LingXiang2023/IBRSteG" alt="Header Image" width="100%">
+
+</p>
+
 <p>
   <a href="https://arxiv.org/abs/2606.30024"><img src="https://img.shields.io/badge/arXiv-2606.30024-b31b1b.svg" alt="arXiv"></a>
   <img src="https://img.shields.io/badge/IEEE-TMM%202026-00629B.svg" alt="IEEE TMM">
