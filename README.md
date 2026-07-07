@@ -218,21 +218,23 @@ cd ..
 
 ## 💾 Checkpoints
 
-| File | Purpose |
-| --- | --- |
-| `model_zoo/gps_plus_final.pth` | Frozen GPS-Gaussian+ backbone checkpoint |
-| `model_zoo/ibrsteg_test_weight.pth` | Inference-only IBRSteG/GAS checkpoint for testing |
+To keep this repository lightweight, all model checkpoints are hosted on [Hugging Face](https://huggingface.co/lingxiang2023/IBRSteG/tree/main/model_zoo). 
 
-The original full checkpoint (~489 MB, with optimizer/scheduler state) is trimmed to an inference-only weight (~163 MB, GAS parameters + minimal metadata).
+Please download the required weights and place them in your local `model_zoo/` directory.
 
-<details>
-<summary><b>Regenerate the inference checkpoint</b></summary>
+| File | Purpose | Download |
+| --- | --- | --- |
+| `gps_plus_final.pth` | Frozen GPS-Gaussian+ backbone checkpoint | [Download](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth) |
+| `ibrsteg_test_weight.pth` | Inference-only IBRSteG checkpoint for testing | [Download](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth) |
+
+**Quick Download via CLI:**
 
 ```bash
-python tools/export_inference_checkpoint.py \
-  --input /path/to/09260_final.pth \
-  --output model_zoo/ibrsteg_test_weight.pth
-```
+mkdir -p model_zoo
+wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth) -O model_zoo/gps_plus_final.pth
+wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth) -O model_zoo/ibrsteg_test_weight.pth
+
+Note: The original full checkpoint (~489 MB, containing optimizer/scheduler states) has been trimmed to the inference-only ibrsteg_test_weight.pth (~163 MB).
 
 Robustness experiments can use the fuller training-state checkpoint (`09260_final.pth` or `09260_latest.pth`). It is intentionally *not* required by the standard test command.
 </details>
