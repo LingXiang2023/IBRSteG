@@ -171,7 +171,7 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 
 ## 📁 Data
 
-This release expects the processed THU/THumanMV layout used by GPS-Gaussian+:
+This release expects the processed THU/THumanMV layout used by [GPS-Gaussian+](https://github.com/YaourtB/GPS_plus) ([T-PAMI 2025]).
 
 ```text
 data/thu_processed/
