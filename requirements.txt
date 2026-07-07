@@ -1,0 +1,12 @@
+einops
+kornia
+lpips
+numpy==1.24.0
+opencv-python
+scipy
+tensorboard
+torch
+torchvision
+tqdm
+trimesh
+yacs==0.1.8
