@@ -233,6 +233,7 @@ Please download the required weights and place them in your local `model_zoo/` d
 mkdir -p model_zoo
 wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth) -O model_zoo/gps_plus_final.pth
 wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth) -O model_zoo/ibrsteg_test_weight.pth
+```
 
 Note: The original full checkpoint (~489 MB, containing optimizer/scheduler states) has been trimmed to the inference-only ibrsteg_test_weight.pth (~163 MB).
 
