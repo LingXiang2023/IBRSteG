@@ -5,7 +5,7 @@
 ### Learning a Generalizable Steganography Framework for 3D Gaussian Splatting
 
 <p align="center">
-  <img src="IBRSteG/intro_fig.png" alt="Header Image" width="100%">
+  <img src="intro_fig.png" alt="Header Image" width="100%">
 </p>
 
 <p>
