@@ -219,7 +219,7 @@ cd ..
 | `model_zoo/gps_plus_final.pth` | Frozen GPS-Gaussian+ backbone checkpoint |
 | `model_zoo/ibrsteg_test_weight.pth` | Inference-only IBRSteG/GAS checkpoint for testing |
 
-The provided test weight was exported from the development checkpoint `rebuttal_other/experiments/09260_0926/ckpt/09260_final.pth`. The original full checkpoint (~489 MB, with optimizer/scheduler state) is trimmed to an inference-only weight (~163 MB, GAS parameters + minimal metadata).
+The original full checkpoint (~489 MB, with optimizer/scheduler state) is trimmed to an inference-only weight (~163 MB, GAS parameters + minimal metadata).
 
 <details>
 <summary><b>Regenerate the inference checkpoint</b></summary>
