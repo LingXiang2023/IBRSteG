@@ -15,4 +15,5 @@ logs/
 events.out.tfevents.*
 
 model_zoo/*.tmp
+model_zoo/*.pth
 model_zoo/*_full_train_state.pth

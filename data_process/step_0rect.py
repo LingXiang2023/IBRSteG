@@ -95,19 +95,24 @@ def save_np_to_json(parm, save_name, img_sz):
         
 
 if __name__ == '__main__':
-    # python step_0rect.py -i s2a3 -t val
-    data_root = '/PATH/TO/raw_data/' # TODO
-    processed_data_root = '/PATH/TO/processed_data/' # TODO
-
+    # python data_process/step_0rect.py -i s2a3 -t val
+    repo_root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str, required=True, help='input sequence')
-    parser.add_argument('-t', '--trainval', type=str, required=True, help='train or val')
+    parser.add_argument('-t', '--trainval', type=str, required=True, choices=['train', 'val', 'test'], help='train, val, or test')
+    parser.add_argument('--data-root', type=Path, default=repo_root / 'data' / 'thu_raw', help='raw THU root containing sXaY folders')
+    parser.add_argument('--processed-data-root', type=Path, default=repo_root / 'data' / 'thu_processed', help='processed THU output root')
+    parser.add_argument('--max-frames', type=int, default=None, help='optional cap for quick preprocessing smoke tests')
     arg = parser.parse_args()
 
     data_n = arg.input 
-    ori_dir = data_root+data_n
-    processed_data_root += arg.trainval
-    calib_path = ori_dir+'/calibration_full.json'
+    ori_dir = arg.data_root / data_n
+    processed_data_root = arg.processed_data_root / arg.trainval
+    calib_path = ori_dir / 'calibration_full.json'
+    if not ori_dir.exists():
+        raise FileNotFoundError(f'Raw sequence not found: {ori_dir}')
+    if not calib_path.exists():
+        raise FileNotFoundError(f'Calibration file not found: {calib_path}')
     
     file_list = sorted(os.listdir(ori_dir))
     used_time_id_list = []
@@ -129,11 +134,11 @@ if __name__ == '__main__':
         used_time_id_list = sorted(used_time_id_list)[50:80]
     elif arg.trainval == 'test':
         used_time_id_list = sorted(used_time_id_list)
-        processed_data_root = processed_data_root + '/' + data_n + '_process'
+        processed_data_root = processed_data_root / f'{data_n}_process'
         Path(processed_data_root).mkdir(exist_ok=True, parents=True)
-        shutil.copyfile(calib_path, processed_data_root+'/calibration_full.json')
-    else:
-        exit()
+        shutil.copyfile(calib_path, processed_data_root / 'calibration_full.json')
+    if arg.max_frames is not None:
+        used_time_id_list = used_time_id_list[:arg.max_frames]
 
     img_dir = os.path.join(processed_data_root, 'img')
     Path(img_dir).mkdir(exist_ok=True, parents=True)

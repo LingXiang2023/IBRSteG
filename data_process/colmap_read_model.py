@@ -298,7 +298,7 @@ def rotmat2qvec(R):
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: python read_model.py path/to/model/folder [.txt,.bin]")
+        print("Usage: python read_model.py <model_folder> [.txt,.bin]")
         return
 
     cameras, images, points3D = read_model(path=sys.argv[1], ext=sys.argv[2])

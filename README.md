@@ -113,13 +113,19 @@ IBRSteG_open_source/
 
 ## ⚙️ Installation
 
-The recommended environment is the existing **`gps_plus`** Conda environment. The release code, local rasterizer build, THU training smoke test, random-test smoke test, `per_subject100`, and `per_scene100` checks were all verified with `gps_plus`.
-
-If `gps_plus` already exists on your machine, use it directly:
+The recommended environment is a small **`gps_plus`** Conda environment plus the pinned `requirements.txt`. The release code, local rasterizer build, THU training smoke test, random-test smoke test, `per_subject100`, and `per_scene100` checks were all verified with this environment.
 
 ```bash
 cd IBRSteG_open_source
-conda activate gps_plus
+conda create -n gps_plus python=3.10 -y
+conda run -n gps_plus pip install -r requirements.txt
+```
+
+If `gps_plus` already exists on your machine, update it with the same requirements file:
+
+```bash
+cd IBRSteG_open_source
+conda run -n gps_plus pip install -r requirements.txt
 ```
 
 > [!TIP]
@@ -131,7 +137,6 @@ conda activate gps_plus
 ```bash
 cd IBRSteG_open_source
 conda env create -f environment.yml
-conda activate gps_plus
 ```
 </details>
 
@@ -140,7 +145,15 @@ conda activate gps_plus
 
 You need the differentiable Gaussian rasterizer used by 3DGS/GPS-Gaussian+. If the active environment already has a compatible `diff_gaussian_rasterization`, the plain `python train_thu.py` / `python test_thu.py` commands work directly.
 
-For a self-contained release build, a compatible rasterizer source tree is bundled under `third_party/`. Build it locally with:
+For a self-contained local build, put a compatible rasterizer source tree at `third_party/diff-gaussian-rasterization`. Clone it with submodules, or symlink your existing checkout to that fixed location:
+
+```bash
+mkdir -p third_party
+git clone --recursive https://github.com/graphdeco-inria/diff-gaussian-rasterization.git \
+  third_party/diff-gaussian-rasterization
+```
+
+Build it locally with:
 
 ```bash
 conda run -n gps_plus python tools/build_rasterizer.py \
@@ -171,7 +184,14 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 
 ## 📁 Data
 
-This release expects the processed THU/THumanMV layout used by [GPS-Gaussian+](https://github.com/YaourtB/GPS_plus) ([T-PAMI 2025]).
+This release expects raw data and processed data at fixed repository-relative locations. If your data is stored elsewhere, create a symlink instead of editing source files:
+
+```bash
+mkdir -p data
+ln -s /absolute/path/to/thu_raw data/thu_raw
+```
+
+The processed THU/THumanMV layout follows [GPS-Gaussian+](https://github.com/YaourtB/GPS_plus) ([T-PAMI 2025]) and defaults to `data/thu_processed`.
 
 ```text
 data/thu_processed/
@@ -202,18 +222,12 @@ data/thu_processed/
 If you start from raw captures, use the preprocessing helpers:
 
 ```bash
-cd data_process
-python step_0rect.py -i s1a1 -t train
-python step_1.py    -i s1a1 -t train
-python step_0rect.py -i s3a5 -t val
-python step_1.py    -i s3a5 -t val
-python step_0rect.py -i s1a6 -t test
-python step_1.py    -i s1a6 -t test
-cd ..
+bash data_process/train_data.sh
+conda run -n gps_plus python tools/check_thu_layout.py --data-root data/thu_processed
 ```
 
 > [!IMPORTANT]
-> Before running these, edit `data_root` and `processed_data_root` inside the preprocessing files to match your raw and processed data locations.
+> `data_process/train_data.sh` processes the default training split (`s1a1/s1a2/s1a3/s2a1/s2a2/s2a3/s3a1/s3a2/s3a3`) and the default test split used by `test_thu.py` (`s1a4/s1a5/s1a6/s2a4/s3a5`). Override `THU_RAW_ROOT`, `THU_PROCESSED_ROOT`, `TRAIN_SEQS`, `VAL_SEQS`, or `TEST_SEQS` only when your local split is different.
 </details>
 
 ## 💾 Checkpoints
@@ -231,8 +245,8 @@ Please download the required weights and place them in your local `model_zoo/` d
 
 ```bash
 mkdir -p model_zoo
-wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth) -O model_zoo/gps_plus_final.pth
-wget [https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth](https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth) -O model_zoo/ibrsteg_test_weight.pth
+wget https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/gps_plus_final.pth -O model_zoo/gps_plus_final.pth
+wget https://huggingface.co/lingxiang2023/IBRSteG/resolve/main/model_zoo/ibrsteg_test_weight.pth -O model_zoo/ibrsteg_test_weight.pth
 ```
 
 Note: The original full checkpoint (~489 MB, containing optimizer/scheduler states) has been trimmed to the inference-only ibrsteg_test_weight.pth (~163 MB).
@@ -248,7 +262,7 @@ Robustness experiments can use the fuller training-state checkpoint (`09260_fina
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   test_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --gas-checkpoint model_zoo/ibrsteg_test_weight.pth \
   --test-seqs s1a4 s1a5 s1a6 s2a4 s3a5 \
@@ -264,7 +278,7 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   test_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --gas-checkpoint model_zoo/ibrsteg_test_weight.pth \
   --test-seqs s1a4 s1a5 s1a6 s2a4 s3a5 \
@@ -283,7 +297,7 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   test_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --gas-checkpoint model_zoo/ibrsteg_test_weight.pth \
   --protocol per_subject100 \
@@ -303,7 +317,7 @@ When `--test-seqs` is omitted in `per_subject100`, the script discovers scenes f
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   test_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --gas-checkpoint model_zoo/ibrsteg_test_weight.pth \
   --protocol per_scene100 \
@@ -319,7 +333,7 @@ Or use the wrapper after activating `gps_plus`:
 
 ```bash
 bash scripts/test_thu.sh \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --protocol per_subject100 \
   --per-subject-rounds 100 \
   --min-action-id 4 \
@@ -346,7 +360,7 @@ Train GAS while keeping GPS-Gaussian+ frozen:
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   train_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --output-dir experiments/ibrsteg_thu \
   --experiment-name ibrsteg_thu \
@@ -362,7 +376,7 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 conda run -n gps_plus python tools/run_with_local_rasterizer.py \
   --rasterizer-build .local_build/diff_gaussian_rasterization \
   train_thu.py -- \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --gps-checkpoint model_zoo/gps_plus_final.pth \
   --resume experiments/ibrsteg_thu/ckpt/ibrsteg_thu_latest.pth \
   --output-dir experiments/ibrsteg_thu_resume
@@ -372,7 +386,7 @@ conda run -n gps_plus python tools/run_with_local_rasterizer.py \
 
 ```bash
 bash scripts/train_thu.sh \
-  --data-root /path/to/thu_processed \
+  --data-root data/thu_processed \
   --experiment-name ibrsteg_thu
 ```
 </details>
@@ -420,5 +434,3 @@ If this project is useful for your work, please cite IBRSteG:
 <div align="center">
 <sub>⭐ If you find IBRSteG helpful, consider giving the repo a star.</sub>
 </div>
-```
-

@@ -18,7 +18,7 @@ RASTERIZER_SRC = ROOT / "third_party" / "diff-gaussian-rasterization"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Build the bundled diff-gaussian-rasterization extension."
+        description="Build the local diff-gaussian-rasterization extension."
     )
     parser.add_argument(
         "--build-lib",
@@ -56,6 +56,18 @@ def parse_args() -> argparse.Namespace:
 
 
 def prepare_source(work_dir: Path) -> Path:
+    if not (RASTERIZER_SRC / "setup.py").exists():
+        raise FileNotFoundError(
+            "Rasterizer source not found. Expected setup.py under "
+            f"{RASTERIZER_SRC}. Clone with: git clone --recursive "
+            "https://github.com/graphdeco-inria/diff-gaussian-rasterization.git "
+            "third_party/diff-gaussian-rasterization"
+        )
+    if not (RASTERIZER_SRC / "third_party" / "glm" / "glm").exists():
+        raise FileNotFoundError(
+            "Rasterizer glm headers are missing. Re-clone with --recursive or run: "
+            "git -C third_party/diff-gaussian-rasterization submodule update --init --recursive"
+        )
     if work_dir.exists():
         shutil.rmtree(work_dir)
     shutil.copytree(

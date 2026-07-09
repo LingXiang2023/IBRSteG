@@ -137,7 +137,11 @@ class StereoHumanDataset(Dataset):
         elif self.phase == 'val':
             self.data_root = opt.val_data_root
         else:
-            self.data_root = os.path.join(opt.local_data_root, 'test', self.phase)
+            phase_path = Path(str(self.phase))
+            if phase_path.is_absolute() or os.sep in str(self.phase):
+                self.data_root = str(phase_path)
+            else:
+                self.data_root = os.path.join(opt.local_data_root, 'test', self.phase)
 
         self.img_path = os.path.join(self.data_root, 'img/%s/%d.jpg')
         #self.img_orig_path = os.path.join(self.data_root, 'img/%s/%02d_orig.jpg')
@@ -153,7 +157,10 @@ class StereoHumanDataset(Dataset):
             if (self.phase == 'train') or (self.phase == 'val'):
                 self.local_data_root = os.path.join(opt.local_data_root, self.phase)
             else:
-                self.local_data_root = os.path.join(opt.local_data_root, 'test', self.phase)
+                if phase_path.is_absolute() or os.sep in str(self.phase):
+                    self.local_data_root = str(phase_path)
+                else:
+                    self.local_data_root = os.path.join(opt.local_data_root, 'test', self.phase)
             
             self.local_img_path = os.path.join(self.local_data_root, 'img/%s/%d.jpg')
             self.local_mask_path = os.path.join(self.local_data_root, 'mask/%s/%d.jpg')

@@ -120,18 +120,21 @@ def save_np_to_json(parm, save_name):
         
 
 if __name__ == '__main__':
-    # python step_0rect_custom.py -t val
-    data_root = '/PATH/TO/custom_data' # TODO
-    processed_data_root = '/PATH/TO/processed_custom_data/' # TODO
-
+    # python data_process/step_0rect_custom.py -t val
+    repo_root = Path(__file__).resolve().parents[1]
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--trainval', type=str, required=True, help='train or val')
+    parser.add_argument('-t', '--trainval', type=str, required=True, choices=['train', 'val'], help='train or val')
     parser.add_argument('-n', '--setsize', type=int, default=4, required=False, help='number of cameras for each work set')
+    parser.add_argument('--data-root', type=Path, default=repo_root / 'data' / 'custom_raw', help='custom raw data root')
+    parser.add_argument('--processed-data-root', type=Path, default=repo_root / 'data' / 'custom_processed', help='custom processed output root')
+    parser.add_argument('--max-frames', type=int, default=None, help='optional cap for quick preprocessing smoke tests')
     arg = parser.parse_args()
 
-    ori_dir = data_root
-    processed_data_root += arg.trainval
+    ori_dir = arg.data_root
+    processed_data_root = arg.processed_data_root / arg.trainval
     s_set = arg.setsize
+    if not ori_dir.exists():
+        raise FileNotFoundError(f'Custom raw data root not found: {ori_dir}')
     
     intr, extrs, names, img_size = load_cam_param(ori_dir)
     cam_names = [n_i.split('.')[0].split('_')[1] for n_i in names]
@@ -164,8 +167,8 @@ if __name__ == '__main__':
     elif arg.trainval == 'val':
         # using the last 1/8 frames
         used_time_id_list = sorted(used_time_id_list)[(-total_length//8):]
-    else:
-        exit()
+    if arg.max_frames is not None:
+        used_time_id_list = used_time_id_list[:arg.max_frames]
 
     img_dir = os.path.join(processed_data_root, 'img')
     Path(img_dir).mkdir(exist_ok=True, parents=True)
